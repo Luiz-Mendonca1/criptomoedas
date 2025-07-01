@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styles from './home.module.css'
 import { BsSearch } from  'react-icons/bs'
 import { Link, useNavigate } from 'react-router-dom'
@@ -6,8 +6,16 @@ import type { FormEvent } from 'react'
 
 export function Home() {
     const [input, setInput] = useState('')
-    
+    const [coins, setCoins] = useState([])
     const navigate = useNavigate()
+
+    useEffect(()=>{
+        getData();
+    }, [])
+
+    async function getData() {
+        fetch('')
+    }
 
     function hadleSubmit(e: FormEvent){
         e.preventDefault()
