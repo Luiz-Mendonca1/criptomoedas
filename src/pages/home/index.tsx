@@ -4,9 +4,28 @@ import { BsSearch } from  'react-icons/bs'
 import { Link, useNavigate } from 'react-router-dom'
 import type { FormEvent } from 'react'
 
+interface CoinProps{
+    id: string,
+    rank: string,
+    symbol: string,
+    name: string,
+    supply: string,
+    maxSupply: string,
+    marketCapUsd: string,
+    volumeUsd24Hr: string,
+    priceUsd: string,
+    changePercent24Hr: string,
+    vwap24Hr: string,
+    explorer: string
+}
+
+interface DataProps{
+    data: CoinProps[]
+}
+
 export function Home() {
     const [input, setInput] = useState('')
-    const [coins, setCoins] = useState([])
+    const [coins, setCoins] = useState<CoinProps[]>([])
     const navigate = useNavigate()
 
     useEffect(()=>{
@@ -14,7 +33,28 @@ export function Home() {
     }, [])
 
     async function getData() {
-        fetch('')
+        fetch('https://rest.coincap.io/v3/assets?limit=10&offset=0&apiKey=07e01e6c4f0cd224c991483d335b21a58eb2d1a30093a0836af8ea4364947ad6')
+        .then(response => response.json())
+        .then((data: DataProps)=>{
+            const coinsData = data.data;
+
+            const price = Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: "USD"
+            })
+
+            const formatedResult = coinsData.map((item) => {
+             const formated = {
+               ...item,
+               formatedPrice: price.format(Number(item.priceUsd)),
+               formatedMarket: price.format(Number(item.marketCapUsd))
+             }
+
+            return formated;
+            })
+
+            console.log(formatedResult)
+        })
     }
 
     function hadleSubmit(e: FormEvent){
