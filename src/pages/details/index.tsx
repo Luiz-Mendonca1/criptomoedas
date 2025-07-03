@@ -17,6 +17,7 @@ export function Detail(){
     const navigate = useNavigate()
 
     const [coin, setCoin] = useState<CoinProps>()
+    const [loading, setLoading] = useState(true)
 
 
     useEffect(()=>{
@@ -49,7 +50,9 @@ export function Detail(){
                         formatedMarket: priceCompact.format(Number(data.data.marketCapUsd)),
                         formatedVolume: priceCompact.format(Number(data.data.volumeUsd24Hr))
                     }
-                    console.log(resultData)
+                    
+                    setCoin(resultData)
+                    setLoading(false)
                 })
                 
             }catch(error){
