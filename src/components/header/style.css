@@ -5,12 +5,12 @@
   padding: 20px;
   color: white;
   text-align: center;
-  border-bottom: 5px solid #61dafb;
 }
 
 .app-header h1 {
   margin: 0;
   font-size: 2.5em;
+  transition: 0.3s;
 }
 
 .app-header nav ul {
@@ -23,12 +23,16 @@
 }
 
 .app-header nav ul li a {
-  color: #61dafb;
+  color: #dfff00;
   text-decoration: none;
   font-size: 1.1em;
   transition: color 0.3s ease;
 }
 
 .app-header nav ul li a:hover {
-  color: #a2edff;
+  color: #dfff00;
+}
+
+.header-logo-link:hover h1 {
+  transform: scale(1.05);
 }

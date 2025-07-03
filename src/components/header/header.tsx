@@ -1,25 +1,21 @@
 // src/components/Header.tsx
 
 import React from 'react';
-import './style.css'; // Opcional: Para estilos CSS
+import { Link } from 'react-router-dom';
+import './style.css'; // Para estilos CSS
 
 interface HeaderProps {
-  // Você pode definir props aqui se quiser passar dados para o Header.
-  // Por exemplo, um título:
-  title?: string; 
+  title?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({ title = "Cripto-agora" }) => {
   return (
     <header className="app-header">
-      <h1>{title}</h1>
-      <nav>
-        <ul>
-          <li><a href="/">Início</a></li>
-          <li><a href="/detail">Details</a></li>
-          <li><a href="/contato">Contato</a></li>
-        </ul>
-      </nav>
+      <Link to="/" className="header-logo-link">
+        {/* Usando o h1 como sua "logo" clicável, já que não temos uma tag <img> no seu código original */}
+        <h1>{title}</h1>
+      </Link>
+      {/* <nav> e seus itens de navegação foram removidos aqui */}
     </header>
   );
 };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { data, Link, useNavigate, useParams } from "react-router";
 import type {CoinProps} from '../home'
+import styles from './details.module.css'
 
 interface responseData{
     data: CoinProps
@@ -50,7 +51,7 @@ export function Detail(){
                         formatedMarket: priceCompact.format(Number(data.data.marketCapUsd)),
                         formatedVolume: priceCompact.format(Number(data.data.volumeUsd24Hr))
                     }
-                    
+
                     setCoin(resultData)
                     setLoading(false)
                 })
@@ -62,12 +63,48 @@ export function Detail(){
 
         }
 
+        
+
         getCoin()
     }, [cripto])
-    return(
-        <div>
-            <h1>Details about cripto {cripto}</h1>
-            
-        </div>
-    )
+
+    if(loading || !coin){
+        return(
+            <div className={styles.container}>
+                <h4 className={styles.text}>loading...</h4>
+            </div>
+        )
+    }
+    return (
+    <div className={styles.container}>
+      <h1 className={styles.center}>{coin?.name}</h1>
+      <h1 className={styles.center}>{coin?.symbol}</h1>
+
+      <section className={styles.content}>
+        <img
+          src={`https://assets.coincap.io/assets/icons/${coin?.symbol.toLowerCase()}@2x.png`}
+          alt="Logo da moeda"
+          className={styles.logo}
+        />
+        <h1>{coin?.name} | {coin?.symbol}</h1>
+
+        <p><strong>Preço: </strong>{coin?.formatedPrice}</p>
+
+        <a>
+          <strong>Mercado: </strong>{coin?.formatedMarket}
+        </a>
+
+        <a>
+          <strong>Volume: </strong>{coin?.formatedVolume}
+        </a>
+
+        <a>
+          <strong>Mudança 24h: </strong><span className={Number(coin?.changePercent24Hr) > 0 ? styles.protift : styles.loss} >{Number(coin?.changePercent24Hr).toFixed(3)}</span>
+        </a>
+
+
+      </section>
+
+    </div>
+  )
 }
