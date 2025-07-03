@@ -29,15 +29,16 @@ interface DataProp{
 export function Home() {
   const [input, setInput] = useState("")
   const [coins, setCoins] = useState<CoinProps[]>([]);
+  const [offset, setOffset] = useState(0);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     getData();
-  }, [])
+  }, [offset])
 
   async function getData(){
-    fetch("https://rest.coincap.io/v3/assets?limit=10&offset=0&apiKey=07e01e6c4f0cd224c991483d335b21a58eb2d1a30093a0836af8ea4364947ad6")
+    fetch(`https://rest.coincap.io/v3/assets?limit=10&offset=${offset}&apiKey=07e01e6c4f0cd224c991483d335b21a58eb2d1a30093a0836af8ea4364947ad6`)
     .then(response => response.json())
     .then((data: DataProp) => {
       const coinsData = data.data;
@@ -65,7 +66,9 @@ export function Home() {
       })
 
       //console.log(formatedResult);
-      setCoins(formatedResult);
+
+      const listCoins = [...coins, ...formatedResult]
+      setCoins(listCoins);
 
     })
 
@@ -80,7 +83,12 @@ export function Home() {
   }
 
   function handleGetMore(){
-    alert("TESTE")
+    if(offset === 0){
+      setOffset(10)
+      return;
+    }
+
+    setOffset(offset + 10)
   }
 
   return (
@@ -121,6 +129,7 @@ export function Home() {
                     alt="Logo Cripto"
                     src={`https://assets.coincap.io/assets/icons/${item.symbol.toLowerCase()}@2x.png`}
                   />
+                  
                   <Link to={`/detail/${item.id}`}>
                     <span>{item.name}</span> | {item.symbol}
                   </Link>
@@ -150,7 +159,7 @@ export function Home() {
       </table>
 
       <button className={styles.buttonMore} onClick={handleGetMore}>
-        Carregar mais
+        load more
       </button>
 
     </main>
