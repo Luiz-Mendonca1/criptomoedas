@@ -1,81 +1,96 @@
-import { useEffect, useState } from 'react'
+import { useState , useEffect } from 'react'
 import styles from './home.module.css'
 import { BsSearch } from  'react-icons/bs'
 import { Link, useNavigate } from 'react-router-dom'
 import type { FormEvent } from 'react'
 
 interface CoinProps{
-    id: string,
-    rank: string,
-    symbol: string,
-    name: string,
-    supply: string,
-    maxSupply: string,
-    marketCapUsd: string,
-    volumeUsd24Hr: string,
-    priceUsd: string,
-    changePercent24Hr: string,
-    vwap24Hr: string,
-    explorer: string
+  id: string;
+  name: string;
+  symbol: string;
+  priceUsd: string;
+  vwap24Hr: string;
+  changePercent24Hr: string;
+  rank: string;
+  supply: string;
+  maxSupply: string;
+  marketCapUsd: string;
+  volumeUsd24Hr:string;
+  explorer: string;
+  formatedPrice?: string;
+  formatedMarket?: string;
+  formatedVolume?: string;
 }
 
-interface DataProps{
-    data: CoinProps[]
+interface DataProp{
+  data: CoinProps[]
 }
 
 export function Home() {
-    const [input, setInput] = useState('')
-    const [coins, setCoins] = useState<CoinProps[]>([])
-    const navigate = useNavigate()
+  const [input, setInput] = useState("")
+  const [coins, setCoins] = useState<CoinProps[]>([]);
 
-    useEffect(()=>{
-        getData();
-    }, [])
+  const navigate = useNavigate();
 
-    async function getData() {
-        fetch('https://rest.coincap.io/v3/assets?limit=10&offset=0&apiKey=07e01e6c4f0cd224c991483d335b21a58eb2d1a30093a0836af8ea4364947ad6')
-        .then(response => response.json())
-        .then((data: DataProps)=>{
-            const coinsData = data.data;
+  useEffect(() => {
+    getData();
+  }, [])
 
-            const price = Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "USD"
-            })
+  async function getData(){
+    fetch("https://rest.coincap.io/v3/assets?limit=10&offset=0&apiKey=07e01e6c4f0cd224c991483d335b21a58eb2d1a30093a0836af8ea4364947ad6")
+    .then(response => response.json())
+    .then((data: DataProp) => {
+      const coinsData = data.data;
 
-            const formatedResult = coinsData.map((item) => {
-             const formated = {
-               ...item,
-               formatedPrice: price.format(Number(item.priceUsd)),
-               formatedMarket: price.format(Number(item.marketCapUsd))
-             }
+      const price = Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+      })
 
-            return formated;
-            })
+      const priceCompact = Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        notation: "compact"
+      })
 
-            console.log(formatedResult)
-        })
-    }
+      const formatedResult = coinsData.map((item) => {
+        const formated = {
+          ...item,
+          formatedPrice: price.format(Number(item.priceUsd)),
+          formatedMarket: priceCompact.format(Number(item.marketCapUsd)),
+          formatedVolume: priceCompact.format(Number(item.volumeUsd24Hr))
+        }
 
-    function hadleSubmit(e: FormEvent){
-        e.preventDefault()
+        return formated;
+      })
 
-        if(input==='') return
-        navigate(`/detail/${input}`)
-    }
+      //console.log(formatedResult);
+      setCoins(formatedResult);
 
-    function handleGetMore(){
-        alert('tetst')
-    }
+    })
+
+  }
+
+  function handleSubmit(e: FormEvent){
+    e.preventDefault();
+
+    if(input === "") return;
+
+    navigate(`/detail/${input}`)
+  }
+
+  function handleGetMore(){
+    alert("TESTE")
+  }
 
   return (
     <main className={styles.container}>
-      <form className={styles.form} onSubmit={hadleSubmit}>
+      <form className={styles.form} onSubmit={handleSubmit}>
         <input 
           type="text"
           placeholder="Digite o nome da moeda... EX bitcoin"
           value={input}
-          onChange={(e)=>{setInput(e.target.value)}}
+          onChange={ (e) => setInput(e.target.value) }
         />
         <button type="submit">
           <BsSearch size={30} color="#FFF" />
@@ -96,38 +111,47 @@ export function Home() {
 
         <tbody id="tbody">
 
-          <tr className={styles.tr}>
+          {coins.length > 0 && coins.map((item) => (
+            <tr className={styles.tr} key={item.id}>
 
-            <td className={styles.tdLabel} data-label="Moeda">
-              <div className={styles.name}>
-                <Link to={"/detail/bitcoin"}>
-                  <span>Bitcoin</span> | BTC
-                </Link>
-              </div>
-            </td>
-
-            <td className={styles.tdLabel} data-label="Valor mercado">
-              1T
-            </td>
-
-            <td className={styles.tdLabel} data-label="Preço">
-              8.000
-            </td>
-
-            <td className={styles.tdLabel} data-label="Volume">
-              2B
-            </td>
-
-            <td className={styles.tdProfit} data-label="Mudança 24h">
-              <span>1.20</span>
-            </td>
-
-          </tr>
+              <td className={styles.tdLabel} data-label="Moeda">
+                <div className={styles.name}>
+                  <img
+                    className={styles.logo}
+                    alt="Logo Cripto"
+                    src={`https://assets.coincap.io/assets/icons/${item.symbol.toLowerCase()}@2x.png`}
+                  />
+                  <Link to={`/detail/${item.id}`}>
+                    <span>{item.name}</span> | {item.symbol}
+                  </Link>
+                </div>
+              </td>
+  
+              <td className={styles.tdLabel} data-label="Valor mercado">
+                {item.formatedMarket}
+              </td>
+  
+              <td className={styles.tdLabel} data-label="Preço">
+                {item.formatedPrice}
+              </td>
+  
+              <td className={styles.tdLabel} data-label="Volume">
+                {item.formatedVolume}
+              </td>
+  
+              <td className={Number(item.changePercent24Hr) > 0 ? styles.tdProfit : styles.tdLoss} data-label="Mudança 24h">
+                <span>{Number(item.changePercent24Hr).toFixed(3)}</span>
+              </td>
+  
+            </tr>
+          ))}
 
         </tbody>
       </table>
 
-    <button className={styles.buttonMore} onClick={handleGetMore}>load more</button>
+      <button className={styles.buttonMore} onClick={handleGetMore}>
+        Carregar mais
+      </button>
 
     </main>
   )
