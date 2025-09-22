@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { data, Link, useNavigate, useParams } from "react-router";
+import {useNavigate, useParams } from "react-router";
 import type {CoinProps} from '../home'
 import styles from './details.module.css'
 
@@ -10,8 +10,6 @@ interface responseData{
 interface errorData{
     error: string
 }
-
-type dataProps = responseData | errorData
 
 export function Detail(){
     const {cripto} = useParams()
