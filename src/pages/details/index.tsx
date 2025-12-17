@@ -1,108 +1,107 @@
 import { useEffect, useState } from "react";
-import {useNavigate, useParams } from "react-router";
-import type {CoinProps} from '../home'
+import { useNavigate, useParams } from "react-router";
+import type { CoinProps } from '../home'
 import styles from './details.module.css'
 
-interface responseData{
+// Interfaces para tipagem da resposta da API
+interface responseData {
     data: CoinProps
 }
 
-interface errorData{
+interface errorData {
     error: string
 }
 
-export function Detail(){
-    const {cripto} = useParams()
+export function Detail() {
+    const { cripto } = useParams()
     const navigate = useNavigate()
 
     const [coin, setCoin] = useState<CoinProps>()
     const [loading, setLoading] = useState(true)
 
-
-    useEffect(()=>{
+    useEffect(() => {
         async function getCoin() {
-            try{
+            try {
                 fetch(`https://rest.coincap.io/v3/assets/${cripto}?apiKey=07e01e6c4f0cd224c991483d335b21a58eb2d1a30093a0836af8ea4364947ad6`)
-                .then(response => response.json())
-                .then((data)=>{
-                    console.log(data)
+                    .then(response => response.json())
+                    .then((data: responseData | errorData) => {
+                        
+                        // Verifica se o retorno contém um erro documentado pela API
+                        if ('error' in data) {
+                            navigate('/')
+                            return
+                        }
 
-                    if('error' in data){
-                        navigate('/')
-                        return
-                    }
+                        const price = Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD'
+                        })
 
-                    const price = Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD'
+                        const priceCompact = Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                            notation: 'compact'
+                        })
+
+                        // Tipagem explícita dos dados formatados baseada no CoinProps
+                        const resultData: CoinProps = {
+                            ...data.data,
+                            formatedPrice: price.format(Number(data.data.priceUsd)),
+                            formatedMarket: priceCompact.format(Number(data.data.marketCapUsd)),
+                            formatedVolume: priceCompact.format(Number(data.data.volumeUsd24Hr))
+                        }
+
+                        setCoin(resultData)
+                        setLoading(false)
                     })
 
-                    const priceCompact = Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                        notation: 'compact'
-                    })
-
-                    const resultData = {
-                        ...data.data,
-                        formatedPrice: price.format(Number(data.data.priceUsd)),
-                        formatedMarket: priceCompact.format(Number(data.data.marketCapUsd)),
-                        formatedVolume: priceCompact.format(Number(data.data.volumeUsd24Hr))
-                    }
-
-                    setCoin(resultData)
-                    setLoading(false)
-                })
-                
-            }catch(error){
+            } catch (error) {
                 console.log(error)
                 navigate('/')
             }
-
         }
 
-        
-
         getCoin()
-    }, [cripto])
+    }, [cripto, navigate])
 
-    if(loading || !coin){
-        return(
+    if (loading || !coin) {
+        return (
             <div className={styles.container}>
                 <h4 className={styles.text}>loading...</h4>
             </div>
         )
     }
+
     return (
-    <div className={styles.container}>
-      <h1 className={styles.center}>{coin?.name}</h1>
-      <h1 className={styles.center}>{coin?.symbol}</h1>
+        <div className={styles.container}>
+            <h1 className={styles.center}>{coin?.name}</h1>
+            <h1 className={styles.center}>{coin?.symbol}</h1>
 
-      <section className={styles.content}>
-        <img
-          src={`https://assets.coincap.io/assets/icons/${coin?.symbol.toLowerCase()}@2x.png`}
-          alt="Logo da moeda"
-          className={styles.logo}
-        />
-        <h1>{coin?.name} | {coin?.symbol}</h1>
+            <section className={styles.content}>
+                <img
+                    src={`https://assets.coincap.io/assets/icons/${coin?.symbol.toLowerCase()}@2x.png`}
+                    alt="Logo da moeda"
+                    className={styles.logo}
+                />
+                <h1>{coin?.name} | {coin?.symbol}</h1>
 
-        <p><strong>Preço: </strong>{coin?.formatedPrice}</p>
+                <p><strong>Preço: </strong>{coin?.formatedPrice}</p>
 
-        <a>
-          <strong>Mercado: </strong>{coin?.formatedMarket}
-        </a>
+                <p>
+                    <strong>Mercado: </strong>{coin?.formatedMarket}
+                </p>
 
-        <a>
-          <strong>Volume: </strong>{coin?.formatedVolume}
-        </a>
+                <p>
+                    <strong>Volume: </strong>{coin?.formatedVolume}
+                </p>
 
-        <a>
-          <strong>Mudança 24h: </strong><span className={Number(coin?.changePercent24Hr) > 0 ? styles.protift : styles.loss} >{Number(coin?.changePercent24Hr).toFixed(3)}</span>
-        </a>
-
-
-      </section>
-
-    </div>
-  )
+                <p>
+                    <strong>Mudança 24h: </strong>
+                    <span className={Number(coin?.changePercent24Hr) > 0 ? styles.protift : styles.loss}>
+                        {Number(coin?.changePercent24Hr).toFixed(3)}
+                    </span>
+                </p>
+            </section>
+        </div>
+    )
 }
