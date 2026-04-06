@@ -1,5 +1,5 @@
 import { useState , useEffect } from 'react'
-import styles from './home.module.css'
+import styles from './Home.module.css'
 import { BsSearch } from  'react-icons/bs'
 import { Link, useNavigate } from 'react-router-dom'
 import type { FormEvent } from 'react'
